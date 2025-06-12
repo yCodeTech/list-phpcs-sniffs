@@ -103,6 +103,7 @@
 		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
 		<!-- Prevent type hints from being required in function declarations. -->
 		<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing" />
+		<exclude name="Squiz.Commenting.FunctionComment.TypeHintMissing" />
 		<!-- Prevent requiring @param comments. Some @params don't need to be described and are self-descriptive. -->
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
 
