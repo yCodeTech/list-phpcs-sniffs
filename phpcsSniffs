@@ -5,6 +5,4 @@ include __DIR__.'/ListPhpCsSniffs.php';
 
 $listSniffs = new ListPhpCsSniffs();
 
-$listSniffs->setPhpcsPath('C:/Users/Stuart/AppData/Roaming/Composer/vendor/bin/phpcs.bat');
-
 $listSniffs->run();

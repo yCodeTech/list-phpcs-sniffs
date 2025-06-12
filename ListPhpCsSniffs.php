@@ -23,14 +23,68 @@ class ListPhpCsSniffs {
 	private string $phpcsPath;
 
 	/**
-	 * Set the path to the phpcs executable.
-	 *
-	 * @param string $phpcsPath
-	 *
-	 * @return void
+	 * @var string Operating System type.
 	 */
-	public function setPhpcsPath($phpcsPath) {
-		$this->phpcsPath = $phpcsPath;
+	private string $OS;
+
+	/**
+	 * Constructor to initialize the class.
+	 * It determines the operating system type and finds the path to the phpcs executable.
+	 */
+	public function __construct() {
+		$this->OS = $this->findOS();
+
+		$this->phpcsPath = $this->wherePhpcs();
+	}
+
+	/**
+	 * Find the operating system type from PHP's global constant: PHP_OS.
+	 *
+	 * @return string
+	 */
+	private function findOs() {
+		// Check the first three characters of PHP_OS to determine the OS type.
+		$os = substr(PHP_OS, 0, 3);
+
+		return strtoupper($os) === 'WIN' ? 'Win' : 'Unix';
+	}
+
+	/**
+	 * Find the phpcs path on the system's PATH using 'where phpcs' or 'which phpcs'
+	 * depending on the OS.
+	 *
+	 * @return string
+	 */
+	private function wherePhpcs() {
+		// Use the 'where' command on Windows and 'which' on Unix-like systems
+		// to find the phpcs executable.
+		$command = $this->getOs() === 'Win' ? 'where' : 'which';
+		$output = $this->shellExec("$command phpcs");
+
+		if ($output === null || $output === false) {
+			throw new RuntimeException("Could not find phpcs executable using '$command phpcs'.\n Please either install `squizlabs/php_codesniffer` globally via Composer or manually add the phpcs path into the system's environment PATH.\n\n Exception generated");
+		}
+
+		// Split the output into lines and find the first line that ends with 'phpcs'.
+		// This is to ensure we get the correct path to the phpcs executable if there
+		// are multiple paths.
+		foreach (explode("\n", $output) as $phpcs) {
+			$phpcs = trim($phpcs);
+			if (str_ends_with($phpcs, 'phpcs')) {
+				return addslashes($phpcs);
+			}
+		}
+		throw new RuntimeException("Could not find phpcs.");
+	}
+
+	/**
+	 * Get the operating system type.
+	 * This is used to determine the correct command to run.
+	 *
+	 * @return string
+	 */
+	private function getOs() {
+		return $this->OS;
 	}
 
 	/**
@@ -38,7 +92,7 @@ class ListPhpCsSniffs {
 	 *
 	 * @return string
 	 */
-	public function getPhpcsPath() {
+	private function getPhpcsPath() {
 		return $this->phpcsPath;
 	}
 
