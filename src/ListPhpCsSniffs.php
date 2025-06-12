@@ -3,9 +3,9 @@
 namespace yCodeTech\List_PHPCS_Sniffs;
 
 /**
- * List PHP CodeSniffer sniffs for all installed standards.
+ * List PHP CodeSniffer (PHPCS) sniffs for all installed standards.
  *
- * For use with SquizLabs PHP_CodeSniffer (PHPCS).
+ * For use with squizlabs/php_codesniffer composer package.
  * @link https://github.com/PHPCSStandards/PHP_CodeSniffer
  *
  * Licensed under The MIT License
@@ -56,7 +56,7 @@ class ListPhpCsSniffs {
 	 * depending on the OS.
 	 *
 	 * @return string
-	 * @throws RuntimeException If phpcs executable is not found.
+	 * @throws \RuntimeException If phpcs executable is not found.
 	 */
 	private function wherePhpcs() {
 		// Use the 'where' command on Windows and 'which' on Unix-like systems
@@ -65,7 +65,7 @@ class ListPhpCsSniffs {
 		$output = $this->shellExec("$command phpcs");
 
 		if ($output === null || $output === false) {
-			throw new RuntimeException("Could not find phpcs executable using '$command phpcs'.\n Please either install `squizlabs/php_codesniffer` globally via Composer or manually add the phpcs path into the system's environment PATH.\n\n Exception generated");
+			throw new \RuntimeException("Could not find phpcs executable using '$command phpcs'.\n Please either install `squizlabs/php_codesniffer` globally via Composer or manually add the phpcs path into the system's environment PATH.\n\n Exception generated");
 		}
 
 		// Split the output into lines and find the first line that ends with 'phpcs'.
@@ -77,7 +77,7 @@ class ListPhpCsSniffs {
 				return addslashes($phpcs);
 			}
 		}
-		throw new RuntimeException("Could not find phpcs.");
+		throw new \RuntimeException("Could not find phpcs.");
 	}
 
 	/**
@@ -223,7 +223,7 @@ class ListPhpCsSniffs {
 						return $standard;
 					}
 				}
-				throw new Exception("Sniff '$sniff' doesn't seem to belong to any standards: '" . implode(', ', $standards) . "'");
+				throw new \Exception("Sniff '$sniff' doesn't seem to belong to any standards: '" . implode(', ', $standards) . "'");
 			})
 			->map(function ($item) {
 				$result = [];
