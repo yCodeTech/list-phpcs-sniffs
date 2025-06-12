@@ -54,6 +54,7 @@ class ListPhpCsSniffs {
 	 * depending on the OS.
 	 *
 	 * @return string
+	 * @throws RuntimeException If phpcs executable is not found.
 	 */
 	private function wherePhpcs() {
 		// Use the 'where' command on Windows and 'which' on Unix-like systems
@@ -175,13 +176,12 @@ class ListPhpCsSniffs {
 	 * @param string $phpcsOutput
 	 * @param array  $standards
 	 *
-	 * @return Collection
+	 * @return Collection The collection of sniffs.
 	 */
 	private function parseSniffs($phpcsOutput, $standards) {
-		$lines = explode("\n", $phpcsOutput);
-
-		// Collect and filter the lines to extract only valid sniff names.
-		return collect($lines)
+		// Collect and filter the lines to extract only valid sniff names, and make
+		// sure they are unique, discarding of any duplicates.
+		return collect(explode("\n", $phpcsOutput))
 			->map(function ($line) {
 				// Trim whitespace from each line.
 				return trim($line);
@@ -195,9 +195,7 @@ class ListPhpCsSniffs {
 					return str_starts_with($line, "$standard.");
 				});
 
-			})
-			->unique() // Remove duplicate sniffs.
-			->values(); // Re-index the collection.
+			})->unique()->values();
 	}
 
 	/**
@@ -207,6 +205,7 @@ class ListPhpCsSniffs {
 	 * @param array      $standards
 	 *
 	 * @return array The grouped sniffs as an associative array.
+	 * @throws Exception If a sniff does not belong to any of the standards.
 	 */
 	private function groupSniffsByStandard(Collection $sniffs, $standards) {
 		// Group sniffs by their standards name.
@@ -224,63 +223,39 @@ class ListPhpCsSniffs {
 				}
 				throw new Exception("Sniff '$sniff' doesn't seem to belong to any standards: '" . implode(', ', $standards) . "'");
 			})
-			->map(function ($sniffs) {
+			->map(function ($item) {
 				$result = [];
 
-				// Group any of the standards' deprecated sniffs separately.
-				$deprecated = $this->groupDeprecatedSniffs($sniffs);
-
-				if ($deprecated->isNotEmpty()) {
-					$result['deprecated'] = $deprecated->all();
-				}
-
-				// Remove the deprecated sniffs from the active sniffs.
-				$sniffs->each(function ($sniff) use ($deprecated, &$result) {
-					// If the sniff is not deprecated, add it to the result.
-					if (!$this->isSniffDeprecated($sniff, $deprecated)) {
+				// Separate deprecated sniffs in the item array from the rest of the sniffs.
+				$item->each(function ($sniff) use (&$result) {
+					// If the sniff is deprecated...
+					if ($this->isSniffDeprecated($sniff)) {
+						// Remove the trailing '*' from the end of the sniff name.
+						$sniff = str_replace(' *', '', $sniff);
+						// Add it to the deprecated sniffs array of the result.
+						$result['deprecated'][] = $sniff;
+					}
+					// Otherwise, add it to the result array.
+					else {
 						$result[] = $sniff;
 					}
 				});
 
 				return $result;
-			})
-			->toArray();
-	}
-
-	/**
-	 * Group deprecated sniffs separate to active sniffs.
-	 *
-	 * @param Collection $sniffs
-	 *
-	 * @return Collection The deprecated sniffs.
-	 */
-	private function groupDeprecatedSniffs(Collection $sniffs) {
-		// Identify deprecated sniffs (ending with '*').
-		return $sniffs
-			->filter(function ($sniff) {
-				return substr($sniff, -1) === '*';
-			})
-			->map(function ($sniff) {
-				// Now we know which ones are deprecated, we can remove the '*'
-				// from the end of the sniff name.
-				return str_replace(' *', '', $sniff);
-			})
-			->values();
+			})->toArray();
 	}
 
 	/**
 	 * Check if a sniff is deprecated.
-	 * This checks if the sniff name contains any of the deprecated sniff names.
+	 * This checks if the sniff name contains a trailing '*',
+	 * which indicates that it is deprecated.
 	 *
 	 * @param string $sniff
-	 * @param Collection $deprecated
 	 *
 	 * @return boolean
 	 */
-	private function isSniffDeprecated(string $sniff, Collection $deprecated) {
-		return $deprecated->contains(function ($deprecatedSniff) use ($sniff) {
-			return str_contains($sniff, $deprecatedSniff);
-		});
+	private function isSniffDeprecated(string $sniff) {
+		return substr($sniff, -1) === '*';
 	}
 
 	/**
