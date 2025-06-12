@@ -1,7 +1,10 @@
 #!/usr/bin/env php
 <?php
+
 require './vendor/autoload.php';
 include __DIR__.'/src/ListPhpCsSniffs.php';
+
+use yCodeTech\List_PHPCS_Sniffs\ListPhpcsSniffs;
 
 $listSniffs = new ListPhpCsSniffs();
 

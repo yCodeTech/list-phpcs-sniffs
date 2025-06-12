@@ -1,5 +1,7 @@
 <?php
 
+namespace yCodeTech\List_PHPCS_Sniffs;
+
 /**
  * List PHP CodeSniffer sniffs for all installed standards.
  *
