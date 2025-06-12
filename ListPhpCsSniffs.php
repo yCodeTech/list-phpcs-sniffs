@@ -1,11 +1,24 @@
 <?php
 
+/**
+ * List PHP CodeSniffer sniffs for all installed standards.
+ *
+ * For use with SquizLabs PHP_CodeSniffer (PHPCS).
+ * @link https://github.com/PHPCSStandards/PHP_CodeSniffer
+ *
+ * Licensed under The MIT License
+ *
+ * @author     Stuart Norman - @yCodeTech <stuart-norman@hotmail.com>
+ * @copyright  2025 yCodeTech
+ * @license    The MIT License
+ * @version    1.0.0
+ */
+
 use Illuminate\Support\Collection;
 
 class ListPhpCsSniffs {
 	/**
-	 * Path to the phpcs executable.
-	 * @var string
+	 * @var string Path to the phpcs executable.
 	 */
 	private string $phpcsPath;
 
@@ -30,7 +43,8 @@ class ListPhpCsSniffs {
 	}
 
 	/**
-	 * Summary of run
+	 * Run the sniff listing process.
+	 *
 	 * @return void
 	 */
 	public function run() {
@@ -78,7 +92,7 @@ class ListPhpCsSniffs {
 			$standardsArray = preg_split('/, | and /', $standards);
 			$standards = implode(',', array_map('trim', $standardsArray));
 		}
-		
+
 		return $standards;
 	}
 
@@ -126,12 +140,20 @@ class ListPhpCsSniffs {
 					// For example, "PSR2.Classes.ClassDeclaration".
 					return str_starts_with($line, "$standard.");
 				});
-				
+
 			})
 			->unique() // Remove duplicate sniffs.
 			->values(); // Re-index the collection.
 	}
 
+	/**
+	 * Group sniffs by their standards.
+	 *
+	 * @param Collection $sniffs
+	 * @param array      $standards
+	 *
+	 * @return array The grouped sniffs as an associative array.
+	 */
 	private function groupSniffsByStandard(Collection $sniffs, $standards) {
 		// Group sniffs by their standards name.
 		return $sniffs
@@ -140,7 +162,7 @@ class ListPhpCsSniffs {
 				foreach ($standards as $standard) {
 					// Check if the sniff starts with the standard name.
 					// This is important for correctly grouping sniffs.
-					// The dot is important to match the full standard name, instead of 
+					// The dot is important to match the full standard name, instead of
 					// partially if 2 standards have the same beginning, like PRS1 and PRS12.
 					if (str_starts_with($sniff, "$standard.")) {
 						return $standard;
@@ -151,9 +173,9 @@ class ListPhpCsSniffs {
 			->map(function ($sniffs) {
 				$result = [];
 
-				// Group any of the standards deprecated sniffs separately.
+				// Group any of the standards' deprecated sniffs separately.
 				$deprecated = $this->groupDeprecatedSniffs($sniffs);
-				
+
 				if ($deprecated->isNotEmpty()) {
 					$result['deprecated'] = $deprecated->all();
 				}
@@ -197,7 +219,7 @@ class ListPhpCsSniffs {
 	 * This checks if the sniff name contains any of the deprecated sniff names.
 	 *
 	 * @param string $sniff
-	 * @param Illuminate\Support\Collection $deprecated
+	 * @param Collection $deprecated
 	 *
 	 * @return boolean
 	 */
@@ -214,7 +236,7 @@ class ListPhpCsSniffs {
 	 *
 	 * @return boolean|string|null The output.
 	 */
-	public function shellExec($command) {
+	private function shellExec($command) {
 		return shell_exec($command);
 	}
 }
