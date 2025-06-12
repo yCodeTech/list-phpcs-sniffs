@@ -140,7 +140,9 @@ class ListPhpCsSniffs {
 				foreach ($standards as $standard) {
 					// Check if the sniff starts with the standard name.
 					// This is important for correctly grouping sniffs.
-					if (str_starts_with($sniff, $standard)) {
+					// The dot is important to match the full standard name, instead of 
+					// partially if 2 standards have the same beginning, like PRS1 and PRS12.
+					if (str_starts_with($sniff, "$standard.")) {
 						return $standard;
 					}
 				}
