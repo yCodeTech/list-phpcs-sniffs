@@ -146,7 +146,7 @@ class ListPhpCsSniffs {
 						return $standard;
 					}
 				}
-				return null;
+				throw new Exception("Sniff '$sniff' doesn't seem to belong to any standards: '" . implode(', ', $standards) . "'");
 			})
 			->map(function ($sniffs) {
 				$result = [];
