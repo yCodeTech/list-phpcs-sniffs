@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<ruleset name="yCodeTech">
+	<description>yCodeTech's Coding Standards</description>
+
+	<!-- Scan all files in directory -->
+	<file>.</file>
+
+	<!-- Scan only PHP files -->
+	<arg name="extensions" value="php"/>
+
+	<!-- Ignore WordPress and Composer dependencies -->
+	<exclude-pattern>web/wp</exclude-pattern>
+	<exclude-pattern>web/app/plugins</exclude-pattern>
+	<exclude-pattern>web/app/mu-plugins</exclude-pattern>
+	<exclude-pattern>vendor/</exclude-pattern>
+	<exclude-pattern>web/app/uploads/</exclude-pattern>
+
+	<!-- Show colors in console -->
+	<arg value="-colors"/>
+
+	<!-- Show sniff codes in all reports -->
+	<arg value="ns"/>
+
+	<!-- Allow multiple classes in a single file ONLY for facades.php files,
+	ie. exclude the file from the sniff. -->
+	<rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+		<exclude-pattern>*facades.php</exclude-pattern>
+	</rule>
+	<!-- Allow closing brace on same line as the content ONLY for facades.php files,
+	ie. exclude the file from the sniff.
+	This allows empty class declarations to use only 1 line. -->
+	<rule ref="Squiz.WhiteSpace.ScopeClosingBrace.ContentBefore">
+		<exclude-pattern>*facades.php</exclude-pattern>
+	</rule>
+
+
+	<!-- Use PSR-2 as a base -->
+	<rule ref="PSR2">
+		<!-- Allow tab indent -->
+		<exclude name="Generic.WhiteSpace.DisallowTabIndent"/>
+		<!-- Allow php files to end without blank line -->
+		<exclude name="PSR2.Files.EndFileNewline"/>
+
+		<!-- Allow braces on the same line as the function declaration. -->
+		<exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine" />
+		<!-- Allow inline if statements without braces -->
+		<exclude name="Generic.ControlStructures.InlineControlStructure" />
+
+		<exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine" />
+		<exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace" />
+		<exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
+		<exclude name="PEAR.Functions.ValidDefaultValue.NotAtEnd" />
+		<!-- Allow same-line function call arguments, ie. prevent 1 argument per line. -->
+		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments" />
+		<!-- Allow content after a function opening bracket,
+		ie. allow arguments on same line as the opening bracket. -->
+		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
+		<!-- Prevent function closing bracket from being on it's own line. -->
+		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
+		<exclude name="Generic.Files.LineLength.TooLong" />
+		<exclude name="PSR2.Methods.FunctionClosingBrace.SpacingBeforeClose" />
+		<exclude name="PSR2.Methods.FunctionCallSignature.ContentAfterOpenBracket" />
+	</rule>
+	<!-- Allow same line opening brackets for functions -->
+	<rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie" />
+	<!-- Allow same line opening brackets for classes -->
+	<rule ref="Generic.Classes.OpeningBraceSameLine"/>
+	<!-- Disallow space indent -->
+	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+	<!-- Allow tab indents -->
+	<rule ref="Generic.WhiteSpace.ScopeIndent">
+		<properties>
+			<property name="indent" value="4"/>
+			<property name="tabIndent" value="false"/>
+			<property name="exact" value="true"/>
+		</properties>
+	</rule>
+	<!-- Disallow spaces after opening and closing braces -->
+	<rule ref="PEAR.Functions.FunctionCallSignature">
+		<properties>
+			<property name="requiredSpacesAfterOpen" value="0" />
+			<property name="requiredSpacesBeforeClose" value="0" />
+			<property name="allowMultipleArguments" value="false"/>
+		</properties>
+	</rule>
+	<!-- Allow concatenation spacing.
+	1 space after and 1 space before the concatenation operator (.) -->
+	<rule ref="Squiz.Strings.ConcatenationSpacing">
+		<properties>
+			<property name="spacing" value="1" />
+			<property name="ignoreNewlines" value="true" />
+		</properties>
+	</rule>
+
+	<!-- Functions must have a docblock comment -->
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<properties>
+			<!-- If the function has an @inheritdoc, then skip the docblock check -->
+			<property name="skipIfInheritdoc" value="true" />
+		</properties>
+
+		<!-- Prevent @param comments requiring a full stop at the end. -->
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+		<!-- Prevent type hints from being required in function declarations. -->
+		<exclude name="Squiz.Commenting.FunctionComment.ScalarTypeHintMissing" />
+		<!-- Prevent requiring @param comments. Some @params don't need to be described and are self-descriptive. -->
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
+
+		<exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />
+	</rule>
+	<!-- Inline Block comments -->
+	<rule ref="Squiz.Commenting.BlockComment">
+		<!-- Disallow empty lines after block comments -->
+		<exclude name="Squiz.Commenting.BlockComment.NoEmptyLineAfter" />
+		<!-- Allow block comments to start with other block formats not just /*, like /**, /*! -->
+		<exclude name="Squiz.Commenting.BlockComment.WrongStart" />
+		<!-- Allow block comments to end with other formats not just */; particurlarly useful for comment headers. -->
+		<exclude name="Squiz.Commenting.BlockComment.WrongEnd" />
+	</rule>
+
+
+	<!-- External standard. https://github.com/JParkinson1991/phpcodesniffer-standards/blob/master/docs/Standards/JPSR12/JPSR12.md -->
+	<!-- Exclude certain sniffs. -->
+	<rule ref="JPSR12">
+		<exclude name="JPSR12.Files" />
+		<exclude name="JPSR12.Operators.OperatorSpacing" />
+		<exclude name="JPSR12.Types.DeclareStrictTypes" />
+		<exclude name="JPSR12.ControlSignatures.MultiKeyword.SingleNewlineRequired" />
+	</rule>
+</ruleset>
