@@ -1,5 +1,30 @@
 {
-    "require": {
-        "illuminate/collections": "^12.18"
-    }
+	"name": "ycodetech/list-phpcs-sniffs",
+	"description": "Get a list of all PHPCS sniffs from the installed standards.",
+	"keywords": [
+		"phpcs",
+		"sniffs",
+		"standards"
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "ycodetech",
+			"email": "stuart-norman@hotmail.com"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"yCodeTech\\List_PHPCS_Sniffs\\": "src/"
+		}
+	},
+	"require": {
+		"illuminate/collections": "^12.18"
+	},
+	"bin": [
+		"phpcsSniffs"
+	],
+	"config": {
+		"sort-packages": true
+	}
 }
