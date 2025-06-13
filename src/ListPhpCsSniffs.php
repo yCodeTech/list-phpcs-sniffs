@@ -192,7 +192,7 @@ class ListPhpCsSniffs {
 				throw new \Exception("Sniff '$sniff' doesn't seem to belong to any standards: '" . implode(', ', $standards) . "'");
 			})
 			->map(function ($item) {
-				$result = [];
+				$result = ["deprecated" => []];
 
 				// Separate deprecated sniffs in the item array from the rest of the sniffs.
 				$item->each(function ($sniff) use (&$result) {
@@ -208,6 +208,10 @@ class ListPhpCsSniffs {
 						$result[] = $sniff;
 					}
 				});
+
+				if (empty($result['deprecated'])) {
+					unset($result['deprecated']);
+				}
 
 				return $result;
 			})->toArray();
