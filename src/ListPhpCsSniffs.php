@@ -20,6 +20,11 @@ use Illuminate\Support\Collection;
 
 class ListPhpCsSniffs {
 	/**
+	 * @var Utils
+	 */
+	private Utils $utils;
+
+	/**
 	 * @var string Path to the phpcs executable.
 	 */
 	private string $phpcsPath;
@@ -34,50 +39,11 @@ class ListPhpCsSniffs {
 	 * It determines the operating system type and finds the path to the phpcs executable.
 	 */
 	public function __construct() {
-		$this->OS = $this->findOS();
+		$this->utils = new Utils();
 
-		$this->phpcsPath = $this->wherePhpcs();
-	}
+		$this->OS = $this->utils->findOs();
 
-	/**
-	 * Find the operating system type from PHP's global constant: PHP_OS.
-	 *
-	 * @return string
-	 */
-	private function findOs() {
-		// Check the first three characters of PHP_OS to determine the OS type.
-		$os = substr(PHP_OS, 0, 3);
-
-		return strtoupper($os) === 'WIN' ? 'Win' : 'Unix';
-	}
-
-	/**
-	 * Find the phpcs path on the system's PATH using 'where phpcs' or 'which phpcs'
-	 * depending on the OS.
-	 *
-	 * @return string
-	 * @throws \RuntimeException If phpcs executable is not found.
-	 */
-	private function wherePhpcs() {
-		// Use the 'where' command on Windows and 'which' on Unix-like systems
-		// to find the phpcs executable.
-		$command = $this->getOs() === 'Win' ? 'where' : 'which';
-		$output = $this->shellExec("$command phpcs");
-
-		if ($output === null || $output === false) {
-			throw new \RuntimeException("Could not find phpcs executable using '$command phpcs'.\n Please either install `squizlabs/php_codesniffer` globally via Composer or manually add the phpcs path into the system's environment PATH.\n\n Exception generated");
-		}
-
-		// Split the output into lines and find the first line that ends with 'phpcs'.
-		// This is to ensure we get the correct path to the phpcs executable if there
-		// are multiple paths.
-		foreach (explode("\n", $output) as $phpcs) {
-			$phpcs = trim($phpcs);
-			if (str_ends_with($phpcs, 'phpcs')) {
-				return addslashes($phpcs);
-			}
-		}
-		throw new \RuntimeException("Could not find phpcs.");
+		$this->phpcsPath = $this->utils->wherePhpcs($this->getOs());
 	}
 
 	/**
@@ -135,7 +101,7 @@ class ListPhpCsSniffs {
 	 */
 	private function getInstalledStandards() {
 		// Execute the phpcs.exe command to get the installed standards.
-		$standards = $this->shellExec("{$this->getPhpcsPath()} -i");
+		$standards = $this->utils->shellExec("{$this->getPhpcsPath()} -i");
 
 		if ($standards === null || $standards === false) {
 			// Command failed, so just return false.
@@ -163,7 +129,7 @@ class ListPhpCsSniffs {
 	private function getSniffsFromStandards($standards) {
 
 		// Execute the phpcs command to list sniffs for the given standards.
-		$output = $this->shellExec("{$this->getPhpcsPath()} --standard=$standards -e");
+		$output = $this->utils->shellExec("{$this->getPhpcsPath()} --standard=$standards -e");
 
 		if ($output === null || $output === false) {
 			return false;
@@ -231,7 +197,7 @@ class ListPhpCsSniffs {
 				// Separate deprecated sniffs in the item array from the rest of the sniffs.
 				$item->each(function ($sniff) use (&$result) {
 					// If the sniff is deprecated...
-					if ($this->isSniffDeprecated($sniff)) {
+					if ($this->utils->isSniffDeprecated($sniff)) {
 						// Remove the trailing '*' from the end of the sniff name.
 						$sniff = str_replace(' *', '', $sniff);
 						// Add it to the deprecated sniffs array of the result.
@@ -245,29 +211,5 @@ class ListPhpCsSniffs {
 
 				return $result;
 			})->toArray();
-	}
-
-	/**
-	 * Check if a sniff is deprecated.
-	 * This checks if the sniff name contains a trailing '*',
-	 * which indicates that it is deprecated.
-	 *
-	 * @param string $sniff
-	 *
-	 * @return boolean
-	 */
-	private function isSniffDeprecated(string $sniff) {
-		return substr($sniff, -1) === '*';
-	}
-
-	/**
-	 * Execute command via shell and return the complete output as a string
-	 *
-	 * @param string $command
-	 *
-	 * @return boolean|string|null The output.
-	 */
-	private function shellExec($command) {
-		return shell_exec($command);
 	}
 }
